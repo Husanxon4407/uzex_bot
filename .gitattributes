@@ -1,2 +1,3 @@
 # Keep the data files exactly as they are (no line-ending changes)
 *.csv -text
+*.bat eol=crlf

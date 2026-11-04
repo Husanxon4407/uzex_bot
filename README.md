@@ -55,11 +55,11 @@ question → Gemini writes one SQL SELECT → DuckDB runs it (read-only) → Gem
    ```
 5. Create the secret keys file: copy `.env.example` to a new file named **`.env`** and paste the real
    `TELEGRAM_TOKEN` and `AI_API_KEY` (ask Husanxon — the keys are sent privately, never in a group chat). **Never upload `.env`.**
-6. Start the bot:
-   ```
-   python bot.py
-   ```
-   It prints `Bot is running...`. Open the bot in Telegram and send `/start`. Stop it with **Ctrl + C**.
+6. Start the bot: **double-click `start_bot.bat`** (recommended). A black window opens and prints
+   `Bot is running...`. Keep that window open; **closing it stops the bot**. If the bot crashes, it
+   restarts by itself after 5 seconds. It also builds the database first if `uzex.duckdb` is missing.
+   (Or in a terminal: `python bot.py`, stop with **Ctrl + C**.)
+   Then open **https://t.me/uzex_birja_ai_bot** in Telegram and send `/start`.
 
 > ⚠️ **Only ONE copy of the bot may run at a time** (same token). If two computers run it, Telegram gives
 > a "Conflict" error and answers get lost. Agree in the team chat who is running it.
