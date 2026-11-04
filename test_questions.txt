@@ -1,0 +1,21 @@
+# Practice questions. Ask each one, and check the answer yourself with SQL.
+2024-yilda Namangan viloyatida qancha shakar sotilgan?
+Сколько сделок было заключено в 2023 году?
+Qaysi broker eng ko'p bitim tuzgan?
+Какая средняя цена дизельного топлива в 2025 году?
+2026-yil oktabr oyida nechta bitim bekor qilingan?
+Самая крупная экспортная сделка: сумма, товар, дата?
+Сделка номер 100002: какой товар и сколько стоила?
+"Pudexiz Plast" MChJ qancha bitim tuzgan?
+Какой курс доллара был 15.03.2024?
+2021-yilda qancha bitim bo'lgan?            <- data has no 2021: bot must say "no data"
+Сколько iPhone продано на бирже?            <- not in data: bot must say "no data"
+Кто директор компании "Pudexiz Plast"?      <- not in data: bot must say "no data"
+2025-yilda nechta eksport bitimi bo'lgan?
+В каком регионе больше всего сделок?
+Сколько пшеницы продано в Самаркандской области в 2023 году?   <- no such deals: bot must say "no data"
+2024-yilda qaysi xaridor eng ko'p summaga xarid qilgan?
+Какой общий объём торгов в 2025 году в сумах?
+Сколько стоит газ в Европе?                 <- not in data: bot must say "no data"
+2022 yilda birjada qanaqa muammolar bolgan   <- data has no "problems": bot must say so first, then may show cancelled deals
+Почему цены на сахар выросли в 2024 году?   <- data has no reasons: bot must say so first

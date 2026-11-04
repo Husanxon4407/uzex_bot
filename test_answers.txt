@@ -1,0 +1,72 @@
+# Correct answers to test_questions.txt, computed with our own SQL on uzex.duckdb (data 03.01.2022 - 30.10.2026).
+# "not cancelled" = status <> 'Аннулирован(Не оплачен)'.
+
+1. 2024-yilda Namangan viloyatida qancha shakar sotilgan?
+   Not cancelled: 51 314 tonnes, 1 310 deals, 635 581 159 272 so'm.
+   (Including cancelled: 55 288 tonnes, 1 419 deals.) Products: "Сахар белый", "САХАР-ПЕСОК".
+
+2. Сколько сделок было заключено в 2023 году?
+   93 985 deals in total (87 672 of them not cancelled).
+
+3. Qaysi broker eng ko'p bitim tuzgan?
+   BK111 "Gucham Broker" MChJ - 32 422 deals (as seller's or buyer's broker).
+   Next: BK085 KAZEHI BROKER MCHJ - 20 808; BK017 FIPI BROKER MCHJ - 20 141.
+   (Seller side only: BK111 - 21 471. Buyer side only: BK017 - 13 447.)
+
+4. Какая средняя цена дизельного топлива в 2025 году?
+   Trap: diesel is sold in kilograms AND tonnes - never mix them.
+   Not cancelled, weighted (total amount / total volume):
+     sold per tonne:     12 854 596 so'm per tonne (3 973 deals)
+     sold per kilogram:  13 394 so'm per kg (2 066 deals)
+     all together, converted to tonnes: about 13 037 930 so'm per tonne (6 039 deals)
+
+5. 2026-yil oktabr oyida nechta bitim bekor qilingan?
+   751 deals with status 'Аннулирован(Не оплачен)'.
+
+6. Самая крупная экспортная сделка: сумма, товар, дата?
+   Deal 547500, 24.06.2026, "Катод медный М00к", 1 683 554.25 USD (= 22 244 196 226 so'm), status Исполнен.
+
+7. Сделка номер 100002: какой товар и сколько стоила?
+   "Труба ПЭ Ø63мм", 03.01.2022, 1 506 metres, 23 145 714 so'm, status Исполнен.
+
+8. "Pudexiz Plast" MChJ qancha bitim tuzgan?
+   INN 975923536, Samarqand viloyati, seller. 2 438 deals as seller (2 274 not cancelled), 0 as buyer.
+
+9. Какой курс доллара был 15.03.2024?
+   11 720.49 so'm per 1 USD.
+
+10. 2021-yilda qancha bitim bo'lgan?
+    NO DATA - the data starts on 03.01.2022 (0 deals in 2021).
+
+11. Сколько iPhone продано на бирже?
+    NO DATA - there is no such product.
+
+12. Кто директор компании "Pudexiz Plast"?
+    NO DATA - the participants table has only INN, name, region, activity, role, VAT payer. No director.
+
+# --- Extra questions (13-18), added for surprise-question practice ---
+13. 2025-yilda nechta eksport bitimi bo'lgan?
+    1 367 export deals in total, 97 of them cancelled.
+
+14. В каком регионе больше всего сделок?
+    Toshkent shahri - 98 435 deals. Next: Namangan viloyati 58 493, Buxoro viloyati 41 124.
+
+15. Сколько пшеницы продано в Самаркандской области в 2023 году?
+    NO DATA - there are no wheat deals in Samarqand viloyati in 2023 (bot must not invent a number).
+
+16. 2024-yilda qaysi xaridor eng ko'p summaga xarid qilgan?
+    "Zoket Invest" OK (INN 983531029) - 1 169 958 734 081 so'm, 2 052 deals (not cancelled).
+
+17. Какой общий объём торгов в 2025 году в сумах?
+    52 060 836 360 057 so'm (about 52.06 trillion), 107 678 deals, cancelled not counted.
+
+18. Сколько стоит газ в Европе?
+    NO DATA - the data has only this exchange's deals, nothing about Europe.
+
+19. 2022 yilda birjada qanaqa muammolar bolgan
+    NO DIRECT DATA about problems - bot must say this FIRST. Then it may show what the data has for 2022:
+    84 299 deals: 74 650 Исполнен, 5 732 Аннулирован(Не оплачен), 3 917 Исполнен(Частично).
+
+20. Почему цены на сахар выросли в 2024 году?
+    NO DATA about reasons - bot must say this FIRST. It may show prices: January 2024 11 714 152 so'm/tonne,
+    December 2024 12 875 937 so'm/tonne (not cancelled).

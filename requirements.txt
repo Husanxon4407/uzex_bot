@@ -1,0 +1,4 @@
+duckdb
+python-telegram-bot
+openai
+python-dotenv

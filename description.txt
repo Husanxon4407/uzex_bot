@@ -1,0 +1,48 @@
+UZEX AI Hackathon 2026 — Telegram-bot: birja bitimlari bo'yicha savol-javob agenti
+
+=== O'ZBEKCHA ===
+
+1. Bot nima qiladi
+Bot o'zbek va rus tilidagi savollarga UZEX bitimlar reyestri ma'lumotlari (03.01.2022 – 30.10.2026, 500 000 bitim) asosida javob beradi. Har bir raqam bazadagi SQL so'rov natijasidan olinadi. Javob savol qaysi tilda bo'lsa, o'sha tilda beriladi.
+
+2. Texnologiyalar
+- Python, python-telegram-bot — Telegram bot.
+- DuckDB — tezkor lokal analitik ma'lumotlar bazasi; 10 ta CSV fayl bir marta yuklanadi (500 000 bitim, 6 616 shartnoma, 14 392 ishtirokchi, 120 broker, dollar kursi).
+- Google Gemini (asosiy model gemini-3.5-flash, zaxira modellar gemini-3.5-flash-lite va gemini-flash-lite-latest) — savolni SQL'ga aylantirish va javob matnini yozish uchun.
+
+3. Ma'lumotlarni tayyorlash
+- "304 547 938.4" kabi raqamlar va KK.OO.YYYY sanalar to'g'ri turga o'tkaziladi; yuklashdan keyin tekshiriladi: 500 000 bitim, 0 ta noto'g'ri raqam yoki sana, har bir bitimning shartnomasi, kompaniyasi va brokeri topiladi.
+- deals_full jadvali yaratiladi: hajm = lotlar soni × lot hajmi, birlik narxi, so'mdagi summa (eksport bitimlari bitim sanasidagi dollar kursi bo'yicha so'mga o'tkaziladi).
+
+4. Agent javobni qanday topadi
+1) Foydalanuvchi savol beradi.
+2) LLM baza tuzilishini va bazadan olingan aniq qiymatlarni (holatlar, hududlar, o'lchov birliklari, valyutalar) biladi va bitta SQL SELECT so'rovini yozadi.
+3) So'rov DuckDB'da faqat o'qish rejimida bajariladi. Xato bo'lsa, LLM xatoni ko'rib so'rovni tuzatadi (3 martagacha).
+4) LLM natija qatorlarini oladi va FAQAT shu qatorlar asosida qisqa javob yozadi.
+5) Telegram'da: javob, manba (UZEX reyestri va ishlatilgan jadvallar), javob vaqti va bir bosishda ochiladigan "SQL so'rovni ko'rsatish" tugmasi. Har kim javobni tekshirishi mumkin.
+
+5. To'qib chiqarishning oldini olish (eng muhimi)
+- Raqamlar faqat SQL natijasidan olinadi; LLM o'z bilimidan raqam, kompaniya yoki mahsulot qo'sha olmaydi. temperature = 0.
+- Natija bo'sh bo'lsa — bot "ma'lumotlarda yo'q" deydi. Davr 03.01.2022 – 30.10.2026 dan tashqarida bo'lsa (masalan, 2021-yil) — "0" emas, "bu davr uchun ma'lumot yo'q" deydi.
+- Bazada umuman bo'lmagan narsa so'ralsa (muammolar, sabablar, direktorlar, prognozlar, Yevropa narxlari, iPhone) — bot avval ma'lumot yo'qligini aniq aytadi, keyin faqat bazadagi yaqin faktlarni "ma'lumotlar faqat shuni ko'rsatadi" deb beradi.
+- Ma'lumotlardagi tuzoqlar qoidalar bilan hal qilingan: bir mahsulot ko'p xil yozilgan — qisqa o'zak bo'yicha qidiriladi (ILIKE); hududlar o'zbekcha va ruscha yozilgan; bekor qilingan bitimlar (Аннулирован) savdo hajmiga qo'shilmaydi, bitimlar sonida esa jami va bekor qilinganlar alohida ko'rsatiladi; tonna va kilogramm hech qachon qo'shilmaydi; o'rtacha narx vaznli hisoblanadi (summa ÷ hajm).
+- Xavfsizlik: baza faqat o'qish uchun ochilgan, faqat SELECT so'rovlari ruxsat etiladi.
+- Agar LLM yakuniy matnni yoza olmasa, bot taxmin qilmaydi — bazadan olingan qatorlarni o'zini ko'rsatadi.
+- Sinov: 20 ta savol (7 tasi "ma'lumot yo'q" tuzog'i). To'g'ri javoblar bizning alohida SQL so'rovlarimiz bilan hisoblangan va bot javoblari bilan solishtirilgan — hammasi mos keldi.
+
+6. Tezlik va ishonchlilik
+- Odatda javob 2–10 soniyada keladi. Har bir javob uchun 75 soniyalik qat'iy chegara bor (90 soniyadan oshmaydi).
+- Asosiy model band bo'lsa, bot avtomatik ravishda zaxira modelga o'tadi; barcha modellar band bo'lsa, bir necha soniya kutib qayta urinadi. Javob tayyorlanayotganda "yozmoqda..." ko'rinib turadi.
+
+
+=== РУССКИЙ (кратко) ===
+
+Telegram-бот отвечает на вопросы на русском и узбекском языках только по данным реестра сделок UZEX (03.01.2022 – 30.10.2026, 500 000 сделок), на языке вопроса.
+
+Технологии: Python, python-telegram-bot, DuckDB (локальная аналитическая база из 10 CSV-файлов), Google Gemini (gemini-3.5-flash и резервные модели).
+
+Как работает: вопрос → LLM пишет один SQL-запрос SELECT (знает структуру базы и точные значения: статусы, регионы, единицы) → запрос выполняется в DuckDB только для чтения (при ошибке LLM исправляет его, до 3 раз) → LLM пишет ответ ТОЛЬКО по полученным строкам → в Telegram: ответ, источник, время и кнопка «Показать SQL-запрос» для проверки.
+
+Защита от выдуманных ответов: все числа берутся только из результата SQL, temperature = 0; пустой результат или период вне данных (например, 2021 год) → «в данных нет информации»; вопросы о том, чего нет в данных (проблемы, причины, директора, прогнозы) → бот сначала прямо говорит, что таких данных нет; учтены ловушки данных (разные написания товаров, названия регионов на двух языках, аннулированные сделки, тонны и килограммы не складываются, взвешенная средняя цена, сделки в долларах переводятся по курсу на дату сделки); база открыта только для чтения, разрешён только SELECT; если LLM недоступна, бот показывает строки из базы, а не догадки. Проверено на 20 вопросах (7 ловушек «нет данных»): ответы сверены с нашими собственными SQL-запросами — все совпали.
+
+Скорость: обычно 2–10 секунд, жёсткий лимит 75 секунд; при перегрузке основной модели — автоматический переход на резервную.

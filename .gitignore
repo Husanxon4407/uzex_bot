@@ -1,0 +1,7 @@
+# Secret keys - NEVER upload. Send them to teammates privately.
+.env
+# The database is rebuilt in ~10 s with: python load_data.py
+uzex.duckdb
+uzex.duckdb.wal
+__pycache__/
+.idea/
