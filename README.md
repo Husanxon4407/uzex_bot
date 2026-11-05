@@ -18,6 +18,9 @@ A Telegram bot that answers questions **in Uzbek or Russian** about exchange dea
 - ✅ Speed/reliability: usually 2–10 s per answer, hard limit 75 s (judges allow 90 s). If the main AI model is
   busy, the bot switches to backup models, and waits/retries if all are busy.
 - ✅ Written description for the Google Form: `description.txt` (Uzbek + short Russian).
+- ✅ **The bot runs 24/7 on our server** (MyCloud, Tashkent) — nobody's laptop needs to be on. See section 9.
+
+> 🔗 **Bot link (for testing and for the form): https://t.me/uzex_birja_ai_bot**
 
 ## 2. How it works
 
@@ -38,6 +41,11 @@ question → Gemini writes one SQL SELECT → DuckDB runs it (read-only) → Gem
 | `CLAUDE.md` | Short project notes and data traps. |
 
 ## 3. Setup on your computer (Windows, ~10 minutes)
+
+> ℹ️ **You only need this to test or change the code locally.** The real bot already runs on the server
+> (section 9). To just ask the bot questions, open https://t.me/uzex_birja_ai_bot — no setup needed.
+> ⚠️ **Do NOT start the bot (`start_bot.bat` / `python bot.py`) while the server runs it** — two copies with the
+> same token conflict and answers get lost. To test locally, use `python test_bot.py` (it does not use Telegram).
 
 1. Install **Python 3.12 or newer** (python.org → tick "Add Python to PATH") and **Git** (git-scm.com).
 2. Download the code (you must be invited to the repo first):
@@ -94,15 +102,16 @@ git add bot.py test_questions.txt
 git commit -m "Short description of the change"
 git push
 ```
-The person running the bot then does: Ctrl + C → `git pull` → `python bot.py`.
+Pushing to GitHub does **not** change the running bot. To put a change live, it must be copied to the
+server (section 9 → "Put a change live").
 
 ## 7. During the judging
 
 - 10 surprise questions, max 90 seconds per answer.
-- The computer running the bot must stay **on, awake and online**
-  (Settings → System → Power → "When plugged in, put my device to sleep" → **Never**).
+- The bot runs on the server, so laptops can be closed. Just check before judging that it answers in Telegram.
+- Make sure the **MyCloud balance** covers the judging days (it bills per day; the server stops at 0).
 - Don't change code during the judging.
-- If the bot stops answering: look at the terminal for errors, press Ctrl + C, and run `python bot.py` again.
+- If the bot stops answering: see section 9 → "If the bot does not answer".
 
 ## 8. Data traps (already handled in the rules — keep them)
 
@@ -113,3 +122,52 @@ The person running the bot then does: Ctrl + C → `git pull` → `python bot.py
   For "how many deals", give the total and the cancelled count separately.
 - Volume = lots × lot_size. Never add tonnes and kilograms. Average price = SUM(amount) / SUM(volume), per unit.
 - Export deals are in USD; `amount_uzs` converts them with the dollar rate on the deal date.
+
+---
+
+## 9. The server (where the bot runs 24/7)
+
+| | |
+|---|---|
+| Provider | MyCloud (mycloud.uz), Tashkent — billed **per day** from the account balance |
+| Server | `212.47.58.91`, Ubuntu 24.04, 1 vCPU, 2 GB RAM |
+| Login | `ssh root@212.47.58.91` — **SSH key only** (ask Husanxon to add your public key) |
+| Bot folder | `/opt/uzex_bot` (code, data, `.env`, database `uzex.duckdb`, Python venv in `venv/`) |
+| Runs as | system user `uzexbot` (not root); `.env` readable only by that user |
+| Service | `uzex-bot` (systemd): starts on server boot, **restarts itself 5 s after a crash** |
+
+### Everyday commands (run on the server after `ssh root@212.47.58.91`)
+```
+systemctl status uzex-bot            # is it running? (look for "active (running)")
+journalctl -u uzex-bot -n 50         # last 50 log lines (AI errors, Telegram errors)
+journalctl -u uzex-bot -f            # watch the log live (Ctrl + C to stop watching)
+systemctl restart uzex-bot           # restart the bot
+systemctl stop uzex-bot              # stop the bot (e.g. before running it somewhere else)
+systemctl start uzex-bot             # start it again
+```
+In the log, `AI error with gemini-3.5-flash: Error code: 429` is normal on the free tier — the bot then uses a
+backup model automatically. A problem is only if the bot stops answering in Telegram.
+
+### Put a change live (after testing it locally with `python test_bot.py`)
+From your computer, in the bot folder (Git Bash or PowerShell):
+```
+scp bot.py root@212.47.58.91:/opt/uzex_bot/bot.py
+ssh root@212.47.58.91 "chown uzexbot:uzexbot /opt/uzex_bot/bot.py && systemctl restart uzex-bot && systemctl is-active uzex-bot"
+```
+It must print `active`. Then ask the bot one question in Telegram to confirm.
+If you changed `load_data.py` or the data, also run on the server:
+`cd /opt/uzex_bot && sudo -u uzexbot venv/bin/python load_data.py && systemctl restart uzex-bot`.
+If you changed `requirements.txt`: `cd /opt/uzex_bot && sudo -u uzexbot venv/bin/pip install -r requirements.txt`.
+
+### If the bot does not answer
+1. `systemctl status uzex-bot` — if not `active`, run `systemctl restart uzex-bot` and read `journalctl -u uzex-bot -n 50`.
+2. `Conflict: terminated by other getUpdates request` in the log = **someone else is running the bot**
+   (a laptop with `start_bot.bat` or `python bot.py`). Find it and close it.
+3. Server not reachable at all = check the MyCloud panel: is the server on, and is the balance above 0?
+4. Too many failed SSH logins can block your IP for a while. Don't retry in a loop; wait, or unblock it
+   from the MyCloud panel's web console.
+
+### Emergency fallback
+If the server is down and can't be fixed quickly, one person can run the bot on their own computer
+(section 3, `start_bot.bat`). First make sure the server copy is stopped (`systemctl stop uzex-bot`), then
+switch back later: close `start_bot.bat`, then `systemctl start uzex-bot`.
